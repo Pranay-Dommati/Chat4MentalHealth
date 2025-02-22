@@ -1,15 +1,17 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Send, Smile, PlusCircle, AlertCircle } from 'lucide-react';
-import MessageBubble from './MessageBubble';
+import { Send, Smile, PlusCircle, AlertCircle, MessageSquare } from 'lucide-react';
+import { sendMessage } from '../../../services/chatServices';
 
 export default function ChatInterface({ onMessageSent }) {
   const [messages, setMessages] = useState([]);
   const [userInput, setUserInput] = useState('');
-  const [analysis, setAnalysis] = useState({
-    sentiment: null,
-    mood: null,
-    urgency: 'normal'
-  });
+
+  const suggestedMessages = [
+    "I've been feeling anxious lately",
+    "I need someone to talk to",
+    "I'm having trouble sleeping",
+    "I feel overwhelmed"
+  ];
 
   const messagesEndRef = useRef(null);
 
@@ -24,43 +26,75 @@ export default function ChatInterface({ onMessageSent }) {
   const initialMessage = {
     id: 'welcome',
     type: 'system',
-    content: "Hi, I'm here to support you. How are you feeling today?",
-    options: ["I'm feeling good", "I'm feeling anxious", "I'm feeling down"]
+    content: "Hi, I'm here to support you. How are you feeling today?"
   };
 
   useEffect(() => {
     setMessages([initialMessage]);
   }, []);
 
-  const handleSendMessage = (content) => {
-    const newMessage = {
+  const handleSendMessage = async () => {
+    if (!userInput.trim()) return;
+
+    // Add user message
+    const userMessage = {
       id: Date.now(),
       type: 'user',
-      content,
+      content: userInput,
       timestamp: new Date(),
-      status: 'sent' // Add initial status
+      status: 'sent'
     };
-    setMessages(prev => [...prev, newMessage]);
-    
-    // Simulate message delivery
-    setTimeout(() => {
-      setMessages(prev => 
-        prev.map(msg => 
-          msg.id === newMessage.id 
-            ? { ...msg, status: 'delivered' }
-            : msg
-        )
-      );
-    }, 1000);
-
-    onMessageSent(content);
+    setMessages(prev => [...prev, userMessage]);
     setUserInput('');
+
+    try {
+      // Show typing indicator
+      setMessages(prev => [...prev, { 
+        id: 'typing', 
+        type: 'system', 
+        content: '...' 
+      }]);
+      
+      // Get AI response
+      const aiResponse = await sendMessage(userMessage.content);
+      
+      // Remove typing indicator and add AI response
+      setMessages(prev => prev
+        .filter(msg => msg.id !== 'typing')
+        .concat({
+          id: Date.now() + 1,
+          type: 'bot',
+          content: aiResponse,
+          timestamp: new Date()
+        })
+      );
+
+      // Update sentiment analysis
+      onMessageSent(userMessage.content);
+    } catch (error) {
+      console.error('Error getting AI response:', error);
+      setMessages(prev => prev.filter(msg => msg.id !== 'typing'));
+    }
   };
 
+  const LoadingIndicator = () => (
+    <div className="flex items-center space-x-2 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
+      <div className="flex space-x-1">
+        <div className="w-2 h-2 bg-indigo-600 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+        <div className="w-2 h-2 bg-indigo-600 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+        <div className="w-2 h-2 bg-indigo-600 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+      </div>
+      <span className="text-sm text-gray-500 dark:text-gray-400">AI is typing...</span>
+    </div>
+  );
+
   return (
-    <div className="flex flex-col h-full bg-gray-50 dark:bg-gray-900">
+    <div className="flex flex-col h-screen bg-gray-900 text-white">
+      {/* Header */}
+      <div className="p-4 text-lg font-semibold bg-gray-800">Mental Health Support</div>
+
       {/* Messages Area */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4">
+      <div className="flex-1 overflow-y-auto p-4 pb-24 space-y-4">
         {messages.length === 0 && (
           <div className="flex items-center justify-center h-full">
             <div className="text-center space-y-4">
@@ -77,39 +111,54 @@ export default function ChatInterface({ onMessageSent }) {
           </div>
         )}
         {messages.map((message) => (
-          <MessageBubble 
-            key={message.id} 
-            message={{
-              ...message,
-              onOptionClick: (option) => handleSendMessage(option)
-            }} 
-          />
+          message.id === 'typing' ? (
+            <LoadingIndicator key="typing" />
+          ) : (
+            <div key={message.id} className={`mb-2 p-2 rounded-lg w-fit ${message.type === 'user' ? 'bg-blue-500' : 'bg-gray-700'}`}>
+              {message.content}
+            </div>
+          )
         ))}
         <div ref={messagesEndRef} />
       </div>
 
-      {/* Input Area */}
-      <div className="border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-4">
-        <div className="flex items-center gap-3">
-          <button className="p-2 text-gray-500 hover:text-gray-700 dark:text-gray-400">
-            <PlusCircle className="w-5 h-5" />
-          </button>
+      {/* Suggested Messages */}
+      {messages.length === 1 && (
+        <div className="fixed bottom-20 left-0 right-0 px-4">
+          <div className="flex gap-2 overflow-x-auto pb-2 max-w-[calc(100%-2rem)] mx-auto">
+            {suggestedMessages.map((msg, index) => (
+              <button
+                key={index}
+                onClick={() => setUserInput(msg)}
+                className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-gray-700 
+                  border border-gray-200 dark:border-gray-600 rounded-full 
+                  text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 
+                  dark:hover:bg-gray-600 transition-colors whitespace-nowrap"
+              >
+                <MessageSquare className="w-4 h-4" />
+                {msg}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Fixed Input Box */}
+      <div className="p-4 bg-gray-800">
+        <div className="flex items-center border border-gray-600 rounded-lg p-2">
           <input
             type="text"
+            className="flex-1 bg-transparent text-white outline-none p-2"
+            placeholder="Share how you're feeling..."
             value={userInput}
             onChange={(e) => setUserInput(e.target.value)}
-            onKeyPress={(e) => e.key === 'Enter' && handleSendMessage(userInput)}
-            placeholder="Share how you're feeling..."
-            className="flex-1 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-4 py-2 focus:ring-2 focus:ring-indigo-500 dark:text-white"
+            onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
           />
-          <button className="p-2 text-gray-500 hover:text-gray-700 dark:text-gray-400">
-            <Smile className="w-5 h-5" />
-          </button>
           <button
-            onClick={() => handleSendMessage(userInput)}
-            className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
+            className="ml-2 p-2 bg-blue-500 rounded-lg"
+            onClick={handleSendMessage}
           >
-            <Send className="w-5 h-5" />
+            Send
           </button>
         </div>
       </div>
