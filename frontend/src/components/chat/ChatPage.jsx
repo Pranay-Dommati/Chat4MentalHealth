@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import ChatInterface from './components/ChatInterface';
 import SentimentAnalysis from './components/SentimentAnalysis';
-import { MessageCircle } from 'lucide-react';
 
 export default function ChatPage() {
   const [analysis, setAnalysis] = useState({
@@ -12,26 +11,25 @@ export default function ChatPage() {
     urgency: 'normal'
   });
 
-  const handleMessageSent = (message) => {
-    // Update analysis based on new message
-    setAnalysis(prevAnalysis => ({
-      ...prevAnalysis,
-      // Add sentiment analysis logic here
-    }));
+  const handleMessageSent = (message, sentimentResult) => {
+    // Update analysis based on new message and sentiment
+    if (sentimentResult) {
+      setAnalysis(prevAnalysis => ({
+        ...prevAnalysis,
+        // Update based on sentiment analysis
+        anxiety: sentimentResult.sentiment === 'negative' ? Math.min(100, prevAnalysis.anxiety + 5) : Math.max(0, prevAnalysis.anxiety - 2),
+        depression: sentimentResult.sentiment === 'negative' ? Math.min(100, prevAnalysis.depression + 3) : Math.max(0, prevAnalysis.depression - 1),
+        stress: sentimentResult.sentiment === 'negative' ? Math.min(100, prevAnalysis.stress + 4) : Math.max(0, prevAnalysis.stress - 2),
+        positivity: sentimentResult.sentiment === 'positive' ? Math.min(100, prevAnalysis.positivity + 5) : Math.max(0, prevAnalysis.positivity - 1),
+      }));
+    }
   };
-
   return (
-    <div className="flex h-screen overflow-hidden bg-gray-50 dark:bg-gray-900">
-      <div className="flex-1 flex flex-col">
-        <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 p-4">
-          <div className="flex items-center gap-3">
-            <MessageCircle className="w-6 h-6 text-indigo-600" />
-            <h1 className="text-xl font-semibold text-gray-900 dark:text-white">Mental Health Support</h1>
-          </div>
-        </div>
+    <div className="flex h-full overflow-hidden">
+      <div className="flex-1 flex flex-col h-full">
         <ChatInterface onMessageSent={handleMessageSent} />
       </div>
-      <div className="w-96 border-l border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
+      <div className="w-96 border-l border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 flex-shrink-0">
         <SentimentAnalysis analysis={analysis} />
       </div>
     </div>

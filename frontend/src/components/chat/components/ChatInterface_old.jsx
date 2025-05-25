@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Send, MessageSquare, Heart, AlertCircle, Activity } from 'lucide-react';
+import { Send, Smile, PlusCircle, AlertCircle, MessageSquare, Heart, Activity } from 'lucide-react';
 import { sendMessage, analyzeSentiment, checkBackendHealth } from '../../../services/chatServices';
 
 export default function ChatInterface({ onMessageSent }) {
@@ -26,7 +26,6 @@ export default function ChatInterface({ onMessageSent }) {
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
-
   const initialMessage = {
     id: 'welcome',
     type: 'system',
@@ -39,7 +38,6 @@ export default function ChatInterface({ onMessageSent }) {
     // Check backend connection
     checkBackendHealth().then(setIsBackendConnected);
   }, []);
-
   const handleSendMessage = async () => {
     if (!userInput.trim()) return;
 
@@ -110,7 +108,6 @@ export default function ChatInterface({ onMessageSent }) {
   const handleSuggestedMessage = (message) => {
     setUserInput(message);
   };
-
   const getSentimentIcon = (sentiment) => {
     switch (sentiment) {
       case 'positive': return <Heart className="w-3 h-3 text-green-500" />;
@@ -120,67 +117,76 @@ export default function ChatInterface({ onMessageSent }) {
     }
   };
 
+  const getSentimentColor = (sentiment) => {
+    switch (sentiment) {
+      case 'positive': return 'border-l-green-500';
+      case 'negative': return 'border-l-red-500';
+      case 'supportive': return 'border-l-blue-500';
+      default: return 'border-l-gray-500';
+    }
+  };
+
   const LoadingIndicator = () => (
-    <div className="flex items-center space-x-2 p-4 bg-white dark:bg-gray-800 rounded-lg max-w-xs shadow-sm">
+    <div className="flex items-center space-x-2 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg max-w-xs">
       <div className="flex space-x-1">
         <div className="w-2 h-2 bg-indigo-600 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
         <div className="w-2 h-2 bg-indigo-600 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
         <div className="w-2 h-2 bg-indigo-600 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
       </div>
-      <span className="text-sm text-gray-500 dark:text-gray-400">AI is thinking...</span>
+      <span className="text-sm text-gray-500 dark:text-gray-400">AI is analyzing...</span>
     </div>
   );
 
   return (
-    <div className="flex flex-col h-full bg-gray-50 dark:bg-gray-900">
-      {/* Connection Status Bar */}
-      <div className="flex-shrink-0 px-4 py-2 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+    <div className="flex flex-col h-screen bg-gray-900 text-white">
+      {/* Header */}
+      <div className="p-4 bg-gray-800 border-b border-gray-700">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Heart className="w-4 h-4 text-indigo-600" />
-            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">AI Assistant</span>
-          </div>
+          <h1 className="text-lg font-semibold">AI Mental Health Support</h1>
           <div className="flex items-center gap-2">
             <div className={`w-2 h-2 rounded-full ${isBackendConnected ? 'bg-green-500' : 'bg-red-500'}`} />
-            <span className="text-xs text-gray-500 dark:text-gray-400">
-              {isBackendConnected ? 'Online' : 'Offline'}
+            <span className="text-xs text-gray-400">
+              {isBackendConnected ? 'Connected' : 'Offline'}
             </span>
           </div>
         </div>
-      </div>      {/* Messages Area - Scrollable */}
-      <div className="flex-1 overflow-y-auto px-4 py-4 space-y-4 min-h-0 scrollbar-thin">
+      </div>
+
+      {/* Messages Area */}
+      <div className="flex-1 overflow-y-auto p-4 pb-24 space-y-4">
         {messages.length === 0 && (
           <div className="flex items-center justify-center h-full">
-            <div className="text-center space-y-4 max-w-md">
+            <div className="text-center space-y-4">
               <div className="w-16 h-16 bg-indigo-100 dark:bg-indigo-900 rounded-full flex items-center justify-center mx-auto">
                 <Heart className="w-8 h-8 text-indigo-600 dark:text-indigo-400" />
               </div>
-              <p className="text-gray-500 dark:text-gray-400">
-                I'm here to provide personalized support using evidence-based responses. 
-                Share how you're feeling, and I'll help guide you through your emotions.
+              <h3 className="text-lg font-medium text-gray-900 dark:text-white">
+                Welcome to AI Mental Health Support
+              </h3>
+              <p className="text-gray-500 dark:text-gray-400 max-w-sm">
+                Powered by vector-based AI responses. Share how you're feeling, and I'll provide personalized support.
               </p>
             </div>
           </div>
         )}
-        
         {messages.map((message) => (
           message.id === 'typing' ? (
             <LoadingIndicator key="typing" />
           ) : (
             <div key={message.id} 
                  className={`flex ${message.type === 'user' ? 'justify-end' : 'justify-start'} mb-4`}>
-              <div className={`max-w-xs lg:max-w-md px-4 py-3 rounded-2xl shadow-sm ${
+              <div className={`max-w-xs lg:max-w-md px-4 py-3 rounded-2xl border-l-4 ${
                 message.type === 'user' 
-                  ? 'bg-indigo-600 text-white' 
+                  ? `bg-blue-600 text-white ${getSentimentColor(message.sentiment)}` 
                   : message.isError
-                  ? 'bg-red-50 dark:bg-red-900/20 text-red-800 dark:text-red-200 border border-red-200 dark:border-red-800'
-                  : 'bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 border border-gray-200 dark:border-gray-700'
+                  ? 'bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200 border-l-red-500'
+                  : 'bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-100 border-l-blue-500'
               }`}>
                 <div className="flex items-start gap-2">
                   <div className="flex-1">
                     <p className="text-sm leading-relaxed">{message.content}</p>
                     {message.timestamp && (
-                      <p className="text-xs opacity-70 mt-2">
+                      <p className="text-xs opacity-70 mt-1">
                         {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                       </p>
                     )}
@@ -191,9 +197,9 @@ export default function ChatInterface({ onMessageSent }) {
                     </div>
                   )}
                 </div>
-                {message.confidence > 0.3 && message.type === 'user' && (
+                {message.confidence > 0.3 && (
                   <div className="mt-2 text-xs opacity-70">
-                    Mood: {message.sentiment}
+                    Sentiment: {message.sentiment} ({Math.round(message.confidence * 100)}% confidence)
                   </div>
                 )}
               </div>
@@ -201,21 +207,18 @@ export default function ChatInterface({ onMessageSent }) {
           )
         ))}
         <div ref={messagesEndRef} />
-      </div>
-
-      {/* Suggested Messages - Only show when conversation is new */}
+      </div>      {/* Suggested Messages */}
       {messages.length === 1 && (
-        <div className="flex-shrink-0 px-4 pb-4">
-          <p className="text-sm text-gray-500 dark:text-gray-400 mb-3">Suggested topics:</p>
-          <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+        <div className="px-4 pb-4">
+          <p className="text-sm text-gray-400 mb-3">Try asking about:</p>
+          <div className="flex gap-2 overflow-x-auto pb-2">
             {suggestedMessages.map((msg, index) => (
               <button
                 key={index}
                 onClick={() => handleSuggestedMessage(msg)}
-                className="flex items-center gap-2 px-3 py-2 bg-white dark:bg-gray-800 
-                  border border-gray-200 dark:border-gray-600 rounded-full text-sm 
-                  text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 
-                  hover:border-indigo-300 dark:hover:border-indigo-500 transition-colors 
+                className="flex items-center gap-2 px-4 py-2 bg-gray-800 
+                  border border-gray-600 rounded-full text-sm text-gray-300 
+                  hover:bg-gray-700 hover:border-gray-500 transition-colors 
                   whitespace-nowrap flex-shrink-0"
               >
                 <MessageSquare className="w-4 h-4" />
@@ -226,23 +229,23 @@ export default function ChatInterface({ onMessageSent }) {
         </div>
       )}
 
-      {/* Input Box - Fixed at bottom */}
-      <div className="flex-shrink-0 p-4 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700">
-        <div className="flex items-center gap-3 bg-gray-50 dark:bg-gray-700 rounded-xl p-3 shadow-sm">
+      {/* Input Box */}
+      <div className="p-4 bg-gray-800 border-t border-gray-700">
+        <div className="flex items-center gap-3 bg-gray-700 rounded-xl p-3">
           <input
             type="text"
-            className="flex-1 bg-transparent text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 outline-none text-sm resize-none"
-            placeholder={isBackendConnected ? "Type your message..." : "Reconnecting to AI assistant..."}
+            className="flex-1 bg-transparent text-white placeholder-gray-400 outline-none text-sm"
+            placeholder={isBackendConnected ? "Share how you're feeling..." : "Backend offline - please try again later"}
             value={userInput}
             onChange={(e) => setUserInput(e.target.value)}
             onKeyPress={(e) => e.key === 'Enter' && !isTyping && handleSendMessage()}
             disabled={!isBackendConnected || isTyping}
           />
           <button
-            className={`p-2 rounded-lg transition-all duration-200 ${
+            className={`p-2 rounded-lg transition-colors ${
               userInput.trim() && isBackendConnected && !isTyping
-                ? 'bg-indigo-600 hover:bg-indigo-700 text-white shadow-md hover:shadow-lg'
-                : 'bg-gray-300 dark:bg-gray-600 text-gray-500 dark:text-gray-400 cursor-not-allowed'
+                ? 'bg-blue-600 hover:bg-blue-700 text-white'
+                : 'bg-gray-600 text-gray-400 cursor-not-allowed'
             }`}
             onClick={handleSendMessage}
             disabled={!userInput.trim() || !isBackendConnected || isTyping}
@@ -251,9 +254,9 @@ export default function ChatInterface({ onMessageSent }) {
           </button>
         </div>
         {!isBackendConnected && (
-          <p className="text-xs text-red-500 dark:text-red-400 mt-2 flex items-center gap-1">
+          <p className="text-xs text-red-400 mt-2 flex items-center gap-1">
             <AlertCircle className="w-3 h-3" />
-            Unable to connect to AI backend. Please check your connection.
+            Unable to connect to AI backend. Please check if the server is running.
           </p>
         )}
       </div>
