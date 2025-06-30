@@ -1,144 +1,134 @@
-# Mental Health Support Platform
+# 🧠 Mental Health Chatbot Platform
 
 ## Overview
-This project is a Mental Health Support Platform designed to provide users with tools and resources to improve their mental well-being. It includes a chatbot for mental health assistance, analytics for tracking progress, meditation guides, community support, and professional resources.
 
-## Features
+This project is an AI-powered **Mental Health Chatbot Platform** designed to offer supportive conversations and emotional guidance. The system leverages a custom-trained vector store to generate context-aware responses, without using any third-party APIs like OpenAI or LangChain.
 
-### Backend
-- **Mental Health Bot**: A Python-based chatbot that provides mental health support and guidance.
-- **Vector Store**: Stores data for efficient retrieval.
+Instead, it uses a **DeepSeek R1** model trained on curated **mental health datasets** and implements a custom **Retrieval-Augmented Generation (RAG)** pipeline developed entirely on **Kaggle**. The embeddings generated from this process are stored in a serialized file (`vector_store.index`) and used for fast, relevant retrieval in real-time chatbot interactions.
 
-### Frontend
-- **AI Assessment**: Tools for assessing mental health using AI.
-- **Analytics**: Progress tracking and visualization.
-- **Chat Interface**: A user-friendly chat interface for interacting with the mental health bot.
-- **Community Support**: A platform for users to connect and share experiences.
-- **Meditation Guides**: Resources for guided meditation.
-- **Professional Resources**: Access to mental health professionals.
-- **Settings and Customization**: Options for personalizing the user experience.
+---
 
-## Technologies Used
+## 🧩 Key Features
 
-### Backend
+- **Conversational AI Chatbot** trained for mental wellness support
+- **RAG-based vector store** for high-quality, contextual responses
+- **No OpenAI API or LangChain used** – fully custom-built solution
+- **Frontend UI** for chatbot interaction, analytics, meditation, and community
+- **Modular codebase** with React + Vite frontend and Python backend
+
+---
+
+## 🛠️ Technologies Used
+
+### 🔹 Backend
 - Python
-- Libraries specified in `requirements.txt`
+- DeepSeek R1 (for embedding generation)
+- FAISS / Custom Vector Store
+- RAG Architecture (developed in Kaggle)
+- No external AI APIs used
 
-### Frontend
+### 🔹 Frontend
 - React
 - Vite
 - JavaScript
-- CSS
+- Tailwind CSS / CSS Modules
 
-## Installation
+---
 
-### Backend
-1. Navigate to the `backend` directory.
-2. Install the required Python packages:
-   ```bash
-   pip install -r requirements.txt
-   ```
-3. Run the mental health bot:
-   ```bash
-   python mental_health_bot.py
-   ```
+## 🧠 How It Works
 
-### Frontend
-1. Navigate to the `frontend` directory.
-2. Install the required npm packages:
-   ```bash
-   npm install
-   ```
-3. Start the development server:
-   ```bash
-   npm run dev
-   ```
+### 1. Vector Store Development
 
-## Folder Structure
-```
-backend/
-    mental_health_bot.py
-    requirements.txt
-    data/
-        vector_store.index
-frontend/
-    src/
-        components/
-            ai-assessment/
-            analytics/
-            chat/
-            common/
-            community/
-            dashboard/
-            layout/
-            meditation/
-            professionals/
-            settings/
-            wellness/
-        routes/
-        services/
-    public/
-    index.html
-    package.json
-```
+- On **Kaggle**, we used the **DeepSeek R1** model to encode a collection of mental health documents (covering anxiety, depression, therapy tips, etc.).
+- These documents were transformed into **embeddings** and indexed using a vector store mechanism (like FAISS).
+- The final serialized embedding index is stored as a file:  
+  **`vector_store.index`**
 
-## Technical Details
+### 2. Retrieval-Augmented Generation (RAG)
 
-### Architecture
-The platform follows a modular architecture with a clear separation between the backend and frontend:
+- When a user sends a message, the chatbot:
+  1. Converts the message to an embedding.
+  2. Searches the `vector_store.index` for the most similar entries.
+  3. Retrieves the most relevant document chunks.
+  4. Generates a response using contextual data.
 
-- **Backend**: Built using Python, the backend handles the chatbot logic, data storage, and retrieval. It uses the `vector_store.index` file for efficient data indexing and retrieval.
-- **Frontend**: Developed using React and Vite, the frontend provides an interactive user interface for accessing various features like chat, analytics, and meditation guides.
+- This allows the bot to give intelligent, accurate, and emotionally sensitive responses without external API calls.
 
-### How It Works
+---
 
-1. **Chatbot**:
-   - The chatbot is implemented in Python and uses natural language processing (NLP) techniques to understand and respond to user queries.
-   - It leverages the `vector_store.index` file to retrieve relevant information quickly.
+## 🧱 Architecture Diagram
 
-2. **Vector Store**:
-   - The `vector_store.index` file is a serialized data structure that stores embeddings for efficient similarity search.
-   - It is used to match user queries with the most relevant responses or resources.
+```plaintext
+          ┌────────────────────────────┐
+          │     React Frontend (UI)    │
+          └────────────┬───────────────┘
+                       │
+                       ▼
+         ┌──────────────────────────────┐
+         │    Python Backend (API)      │
+         │  - Message Handling          │
+         │  - Embedding Lookup          │
+         │  - Response Generation       │
+         └────────────┬─────────────────┘
+                      │
+                      ▼
+        ┌───────────────────────────────┐
+        │     vector_store.index        │
+        │  - DeepSeek R1 Embeddings     │
+        │  - Trained on Kaggle (RAG)    │
+        └───────────────────────────────┘
+📂 Folder Structure
+plaintext
+Copy
+Edit
+mental-health-chatbot/
+│
+├── backend/
+│   ├── mental_health_bot.py
+│   ├── requirements.txt
+│   └── data/
+│       └── vector_store.index
+│
+├── frontend/
+│   ├── public/
+│   ├── index.html
+│   ├── package.json
+│   └── src/
+│       ├── components/
+│       │   ├── chat/
+│       │   ├── ai-assessment/
+│       │   ├── meditation/
+│       │   ├── analytics/
+│       │   ├── community/
+│       │   ├── professionals/
+│       │   └── settings/
+│       ├── routes/
+│       └── services/
+⚙️ Installation
+🐍 Backend Setup
+bash
+Copy
+Edit
+cd backend
+pip install -r requirements.txt
+python mental_health_bot.py
+🌐 Frontend Setup
+bash
+Copy
+Edit
+cd frontend
+npm install
+npm run dev
+🔮 Future Improvements
+Expand dataset coverage (e.g., PTSD, ADHD, grief)
 
-3. **Retrieval-Augmented Generation (RAG)**:
-   - RAG is employed to enhance the chatbot's responses by combining retrieval-based methods with generative models.
-   - The system retrieves relevant context from the `vector_store.index` and uses it to generate accurate and helpful responses.
+Build emotion detection with visual/audio input
 
-### Development Process
+Add multilingual support (Hindi, Spanish, etc.)
 
-- **Backend**:
-  - Python libraries like `langchain` and `openai` are used for NLP and chatbot development.
-  - The `vector_store.index` file is created using embedding models to store and retrieve data efficiently.
+Deploy full-stack version on cloud (e.g., Vercel + Render)
 
-- **Frontend**:
-  - React components are organized into feature-specific directories for maintainability.
-  - Vite is used for fast development and build processes.
+Integrate secure user login & personalization
 
-### Technologies Used
-
-- **Backend**:
-  - Python
-  - LangChain
-  - OpenAI API
-  - Vector databases
-
-- **Frontend**:
-  - React
-  - Vite
-  - JavaScript
-  - CSS
-
-### Future Enhancements
-
-- Integration with more advanced AI models for better chatbot responses.
-- Expansion of the `vector_store.index` to include more diverse data.
-- Improved analytics and visualization tools for user progress tracking.
-
-## Contributing
-Contributions are welcome! Please fork the repository and submit a pull request.
-
-## License
-This project is licensed under the MIT License.
-
-## Contact
-For any inquiries, please contact [your-email@example.com].
+🤝 Contributing
+Contributions are welcome! Please fork the repository, make your changes, and open a pull request. For major feature proposals, feel free to open an issue first.
