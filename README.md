@@ -1,86 +1,51 @@
-# 🧠 Mental Health AI Companion
+# Mental Health Support Platform
 
-A modern AI-powered mental health companion application designed to provide personalized support, sentiment analysis, and wellness recommendations. Built with Flask (Python) for the backend and React (JavaScript) for the frontend.
+## Overview
+This project is a Mental Health Support Platform designed to provide users with tools and resources to improve their mental well-being. It includes a chatbot for mental health assistance, analytics for tracking progress, meditation guides, community support, and professional resources.
 
-## 📌 Overview
-This project aims to assist users in managing their mental health by providing a conversational AI interface, sentiment analysis, and actionable insights. The application leverages Retrieval-Augmented Generation (RAG) to deliver evidence-based responses tailored to user input.
-
-## ✨ Key Features
-
-### Frontend
-- **Modern UI**: Clean, responsive design with intuitive navigation.
-- **Chat Interface**:
-  - Real-time messaging with AI.
-  - Sentiment analysis visualization.
-- **Analytics Dashboard**:
-  - Emotional trend tracking.
-  - Progress charts for mental wellness.
-- **Community Support**:
-  - Access to professional resources.
-  - Meditation and wellness tools.
+## Features
 
 ### Backend
-- **AI Response Generation**:
-  - Retrieval-Augmented Generation (RAG) for personalized replies.
-  - Vector similarity matching using TF-IDF.
-- **Sentiment Analysis**:
-  - Keyword-based sentiment detection.
-  - Confidence scoring for emotional tone.
-- **API Endpoints**:
-  - `/chat`: Generate AI responses.
-  - `/sentiment`: Analyze sentiment.
-  - `/health`: Health check for the server.
-
-## 🔧 Tech Stack
+- **Mental Health Bot**: A Python-based chatbot that provides mental health support and guidance.
+- **Vector Store**: Stores data for efficient retrieval.
 
 ### Frontend
-- **Framework**: React
-- **Styling**: CSS Modules
-- **Build Tool**: Vite
+- **AI Assessment**: Tools for assessing mental health using AI.
+- **Analytics**: Progress tracking and visualization.
+- **Chat Interface**: A user-friendly chat interface for interacting with the mental health bot.
+- **Community Support**: A platform for users to connect and share experiences.
+- **Meditation Guides**: Resources for guided meditation.
+- **Professional Resources**: Access to mental health professionals.
+- **Settings and Customization**: Options for personalizing the user experience.
+
+## Technologies Used
 
 ### Backend
-- **Framework**: Flask
-- **Libraries**:
-  - Flask-CORS
-  - scikit-learn
-  - numpy
-  - pickle
+- Python
+- Libraries specified in `requirements.txt`
 
-## 🚀 Getting Started
+### Frontend
+- React
+- Vite
+- JavaScript
+- CSS
 
-### Prerequisites
-- Python 3.10+
-- Node.js 18+
-- npm or yarn
+## Installation
 
-### Development Setup
-
-#### Clone the Repository
-```bash
-git clone https://github.com/YOUR_GITHUB_USERNAME/mental-health-ai-companion.git
-cd mental-health-ai-companion
-```
-
-#### Backend Setup
-1. Navigate to the `backend` folder:
-   ```bash
-   cd backend
-   ```
-2. Install dependencies:
+### Backend
+1. Navigate to the `backend` directory.
+2. Install the required Python packages:
    ```bash
    pip install -r requirements.txt
    ```
-3. Run the Flask server:
+3. Run the mental health bot:
    ```bash
    python mental_health_bot.py
    ```
 
-#### Frontend Setup
-1. Navigate to the `frontend` folder:
-   ```bash
-   cd frontend
-   ```
-2. Install dependencies:
+### Frontend
+1. Navigate to the `frontend` directory.
+2. Install the required npm packages:
    ```bash
    npm install
    ```
@@ -89,58 +54,39 @@ cd mental-health-ai-companion
    npm run dev
    ```
 
-### Access the Application
-- Backend: `http://localhost:5000`
-- Frontend: `http://localhost:3000`
+## Folder Structure
+```
+backend/
+    mental_health_bot.py
+    requirements.txt
+    data/
+        vector_store.index
+frontend/
+    src/
+        components/
+            ai-assessment/
+            analytics/
+            chat/
+            common/
+            community/
+            dashboard/
+            layout/
+            meditation/
+            professionals/
+            settings/
+            wellness/
+        routes/
+        services/
+    public/
+    index.html
+    package.json
+```
 
-## 🏗️ System Architecture
+## Contributing
+Contributions are welcome! Please fork the repository and submit a pull request.
 
-### Component Architecture
-- **Frontend**:
-  - Chat Interface
-  - Analytics Dashboard
-  - Meditation Tools
-- **Backend**:
-  - AI Response Generation
-  - Sentiment Analysis
+## License
+This project is licensed under the MIT License.
 
-### API Endpoints
-| Method | Endpoint       | Description                     |
-|--------|----------------|---------------------------------|
-| POST   | `/chat`        | Generate AI response            |
-| POST   | `/sentiment`   | Analyze sentiment               |
-| GET    | `/health`      | Health check for the server     |
-
-## 📈 Roadmap
-
-### Planned Features
-- Real-time collaborative chat
-- Advanced sentiment analysis
-- Integration with professional mental health services
-- Gamified wellness tracking
-
-### Performance Goals
-- Optimized response time (< 200ms)
-- Scalable architecture for high user traffic
-
-## 👥 Contributing
-We welcome contributions! Please follow these steps:
-1. Fork the repository.
-2. Create a feature branch (`git checkout -b feature/amazing-feature`).
-3. Commit changes (`git commit -m 'Add amazing feature'`).
-4. Push to branch (`git push origin feature/amazing-feature`).
-5. Open a Pull Request.
-
-## 📄 License
-This project is licensed under the MIT License - see the LICENSE file for details.
-
-## 👨‍💻 Author
-Built by Sai Charan
-
-GitHub: [charan22640](https://github.com/charan22640)
-
-## 🙏 Acknowledgments
-- Flask Team
-- React Team
-- scikit-learn
-- All our contributors
+## Contact
+For any inquiries, please contact [your-email@example.com].
