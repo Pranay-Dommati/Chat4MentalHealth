@@ -1,6 +1,6 @@
 # 🧠 Mental Health Chatbot Platform
 
-## Overview
+## 📖 Overview
 
 This project is an AI-powered **Mental Health Chatbot Platform** designed to offer supportive conversations and emotional guidance. The system leverages a custom-trained vector store to generate context-aware responses, without using any third-party APIs like OpenAI or LangChain.
 
@@ -10,28 +10,29 @@ Instead, it uses a **DeepSeek R1** model trained on curated **mental health data
 
 ## 🧩 Key Features
 
-- **Conversational AI Chatbot** trained for mental wellness support
-- **RAG-based vector store** for high-quality, contextual responses
-- **No OpenAI API or LangChain used** – fully custom-built solution
-- **Frontend UI** for chatbot interaction, analytics, meditation, and community
-- **Modular codebase** with React + Vite frontend and Python backend
+- **Conversational AI Chatbot** trained for mental wellness support  
+- **RAG-based vector store** for high-quality, contextual responses  
+- **No OpenAI API or LangChain used** – fully custom-built solution  
+- **Frontend UI** for chatbot interaction, analytics, meditation, and community  
+- **Modular codebase** with React + Vite frontend and Python backend  
 
 ---
 
 ## 🛠️ Technologies Used
 
 ### 🔹 Backend
-- Python
-- DeepSeek R1 (for embedding generation)
-- FAISS / Custom Vector Store
-- RAG Architecture (developed in Kaggle)
-- No external AI APIs used
+- Python  
+- Flask  
+- DeepSeek R1 (for embedding generation)  
+- FAISS / Custom Vector Store  
+- RAG Architecture (developed in Kaggle)  
+- No external AI APIs used  
 
 ### 🔹 Frontend
-- React
-- Vite
-- JavaScript
-- Tailwind CSS / CSS Modules
+- React  
+- Vite  
+- JavaScript  
+- Tailwind CSS / CSS Modules  
 
 ---
 
@@ -39,18 +40,18 @@ Instead, it uses a **DeepSeek R1** model trained on curated **mental health data
 
 ### 1. Vector Store Development
 
-- On **Kaggle**, we used the **DeepSeek R1** model to encode a collection of mental health documents (covering anxiety, depression, therapy tips, etc.).
-- These documents were transformed into **embeddings** and indexed using a vector store mechanism (like FAISS).
+- On **Kaggle**, we used the **DeepSeek R1** model to encode a collection of mental health documents (covering anxiety, depression, therapy tips, etc.).  
+- These documents were transformed into **embeddings** and indexed using a vector store mechanism (like FAISS).  
 - The final serialized embedding index is stored as a file:  
   **`vector_store.index`**
 
 ### 2. Retrieval-Augmented Generation (RAG)
 
-- When a user sends a message, the chatbot:
-  1. Converts the message to an embedding.
-  2. Searches the `vector_store.index` for the most similar entries.
-  3. Retrieves the most relevant document chunks.
-  4. Generates a response using contextual data.
+- When a user sends a message, the chatbot:  
+  1. Converts the message to an embedding  
+  2. Searches the `vector_store.index` for the most similar entries  
+  3. Retrieves the most relevant document chunks  
+  4. Generates a response using contextual data  
 
 - This allows the bot to give intelligent, accurate, and emotionally sensitive responses without external API calls.
 
@@ -58,77 +59,90 @@ Instead, it uses a **DeepSeek R1** model trained on curated **mental health data
 
 ## 🧱 Architecture Diagram
 
-```plaintext
-          ┌────────────────────────────┐
-          │     React Frontend (UI)    │
-          └────────────┬───────────────┘
-                       │
-                       ▼
-         ┌──────────────────────────────┐
-         │    Python Backend (API)      │
-         │  - Message Handling          │
-         │  - Embedding Lookup          │
-         │  - Response Generation       │
-         └────────────┬─────────────────┘
-                      │
-                      ▼
-        ┌───────────────────────────────┐
-        │     vector_store.index        │
-        │  - DeepSeek R1 Embeddings     │
-        │  - Trained on Kaggle (RAG)    │
-        └───────────────────────────────┘
-📂 Folder Structure
-plaintext
-Copy
-Edit
+```
+      ┌────────────────────────────┐
+      │     React Frontend (UI)    │
+      └────────────┬───────────────┘
+                   │
+                   ▼
+     ┌──────────────────────────────┐
+     │    Python Backend (API)      │
+     │  - Message Handling          │
+     │  - Embedding Lookup          │
+     │  - Response Generation       │
+     └────────────┬─────────────────┘
+                  │
+                  ▼
+    ┌───────────────────────────────┐
+    │     vector_store.index        │
+    │  - DeepSeek R1 Embeddings     │
+    │  - Trained on Kaggle (RAG)    │
+    └───────────────────────────────┘
+```
+
+---
+
+## 📂 Folder Structure
+
+```
 mental-health-chatbot/
 │
 ├── backend/
-│   ├── mental_health_bot.py
-│   ├── requirements.txt
-│   └── data/
-│       └── vector_store.index
+│ ├── mental_health_bot.py
+│ ├── requirements.txt
+│ └── data/
+│ └── vector_store.index
 │
 ├── frontend/
-│   ├── public/
-│   ├── index.html
-│   ├── package.json
-│   └── src/
-│       ├── components/
-│       │   ├── chat/
-│       │   ├── ai-assessment/
-│       │   ├── meditation/
-│       │   ├── analytics/
-│       │   ├── community/
-│       │   ├── professionals/
-│       │   └── settings/
-│       ├── routes/
-│       └── services/
-⚙️ Installation
-🐍 Backend Setup
-bash
-Copy
-Edit
+│ ├── public/
+│ ├── index.html
+│ ├── package.json
+│ └── src/
+│ ├── components/
+│ │ ├── chat/
+│ │ ├── ai-assessment/
+│ │ ├── meditation/
+│ │ ├── analytics/
+│ │ ├── community/
+│ │ ├── professionals/
+│ │ └── settings/
+│ ├── routes/
+│ └── services/
+```
+
+---
+
+## ⚙️ Installation
+
+### 🐍 Backend Setup
+
+```bash
 cd backend
 pip install -r requirements.txt
 python mental_health_bot.py
-🌐 Frontend Setup
-bash
-Copy
-Edit
+```
+
+### 🌐 Frontend Setup
+
+```bash
 cd frontend
 npm install
 npm run dev
-🔮 Future Improvements
-Expand dataset coverage (e.g., PTSD, ADHD, grief)
+```
 
-Build emotion detection with visual/audio input
+---
 
-Add multilingual support (Hindi, Spanish, etc.)
+## 🔮 Future Improvements
 
-Deploy full-stack version on cloud (e.g., Vercel + Render)
+- Expand dataset coverage (e.g., PTSD, ADHD, grief)  
+- Build emotion detection with visual/audio input  
+- Add multilingual support (Hindi, Spanish, etc.)  
+- Deploy full-stack version on cloud (e.g., Vercel + Render)  
+- Integrate secure user login & personalization  
 
-Integrate secure user login & personalization
+---
 
-🤝 Contributing
-Contributions are welcome! Please fork the repository, make your changes, and open a pull request. For major feature proposals, feel free to open an issue first.
+## 🤝 Contributing
+
+Contributions are welcome! Please fork the repository, make your changes, and open a pull request.  
+For major feature proposals, feel free to open an issue first.
