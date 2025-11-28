@@ -71,8 +71,10 @@ export default function ChatInterface({ onMessageSent }) {
         isTyping: true
       }]);
       
-      // Get AI response using vector store
-      const aiResponse = await sendMessage(userMessageContent);
+      // Get AI response using vector store - now returns object with response and source
+      const result = await sendMessage(userMessageContent);
+      const aiResponse = result.response;
+      const responseSource = result.source;
       
       // Remove typing indicator and add AI response
       setMessages(prev => prev
@@ -82,7 +84,8 @@ export default function ChatInterface({ onMessageSent }) {
           type: 'bot',
           content: aiResponse,
           timestamp: new Date(),
-          sentiment: 'supportive'
+          sentiment: 'supportive',
+          source: responseSource
         })
       );
 
@@ -183,6 +186,24 @@ export default function ChatInterface({ onMessageSent }) {
                       <p className="text-xs opacity-70 mt-2">
                         {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                       </p>
+                    )}
+                    {/* Show source badge for bot messages */}
+                    {message.type === 'bot' && message.source && (
+                      <div className="mt-2 flex items-center gap-1">
+                        {message.source === 'vector_store' ? (
+                          <span className="text-xs px-2 py-0.5 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 rounded-full font-medium">
+                            📊 Vector Store
+                          </span>
+                        ) : message.source === 'fallback_general' ? (
+                          <span className="text-xs px-2 py-0.5 bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-300 rounded-full font-medium">
+                            🔄 Fallback
+                          </span>
+                        ) : message.source === 'fallback_error' ? (
+                          <span className="text-xs px-2 py-0.5 bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300 rounded-full font-medium">
+                            🔄 Fallback (Error)
+                          </span>
+                        ) : null}
+                      </div>
                     )}
                   </div>
                   {message.sentiment && (
