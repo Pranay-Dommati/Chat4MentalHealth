@@ -1,8 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Send, MessageSquare, Heart, AlertCircle, Activity } from 'lucide-react';
-import { sendMessage, analyzeSentiment, checkBackendHealth } from '../../../services/chatServices';
+import { Send, MessageSquare, Heart, AlertCircle, Bot } from 'lucide-react';
+import { sendMessage, checkBackendHealth } from '../../../services/chatServices';
 
-export default function ChatInterface({ onMessageSent }) {
+export default function ChatInterface() {
   const [messages, setMessages] = useState([]);
   const [userInput, setUserInput] = useState('');
   const [isBackendConnected, setIsBackendConnected] = useState(false);
@@ -13,8 +13,7 @@ export default function ChatInterface({ onMessageSent }) {
     "I need someone to talk to",
     "I'm having trouble sleeping",
     "I feel overwhelmed",
-    "I'm feeling stressed about work",
-    "I need help with my emotions"
+    "I'm feeling stressed about work"
   ];
 
   const messagesEndRef = useRef(null);
@@ -29,14 +28,12 @@ export default function ChatInterface({ onMessageSent }) {
 
   const initialMessage = {
     id: 'welcome',
-    type: 'system',
-    content: "Hi, I'm your AI mental health companion. I'm here to support you using evidence-based responses. How are you feeling today?",
-    sentiment: 'neutral'
+    type: 'bot',
+    content: "Hi, I'm your AI mental health companion. I'm here to listen and support you. How are you feeling today?",
   };
 
   useEffect(() => {
     setMessages([initialMessage]);
-    // Check backend connection
     checkBackendHealth().then(setIsBackendConnected);
   }, []);
 
@@ -47,18 +44,12 @@ export default function ChatInterface({ onMessageSent }) {
     setUserInput('');
     setIsTyping(true);
 
-    // Analyze sentiment first
-    const sentimentResult = await analyzeSentiment(userMessageContent);
-
-    // Add user message with sentiment
+    // Add user message
     const userMessage = {
       id: Date.now(),
       type: 'user',
       content: userMessageContent,
       timestamp: new Date(),
-      status: 'sent',
-      sentiment: sentimentResult.sentiment,
-      confidence: sentimentResult.confidence
     };
     setMessages(prev => [...prev, userMessage]);
 
@@ -66,15 +57,14 @@ export default function ChatInterface({ onMessageSent }) {
       // Show typing indicator
       setMessages(prev => [...prev, { 
         id: 'typing', 
-        type: 'system', 
+        type: 'bot', 
         content: '...',
         isTyping: true
       }]);
       
-      // Get AI response using vector store - now returns object with response and source
+      // Get AI response
       const result = await sendMessage(userMessageContent);
       const aiResponse = result.response;
-      const responseSource = result.source;
       
       // Remove typing indicator and add AI response
       setMessages(prev => prev
@@ -84,23 +74,16 @@ export default function ChatInterface({ onMessageSent }) {
           type: 'bot',
           content: aiResponse,
           timestamp: new Date(),
-          sentiment: 'supportive',
-          source: responseSource
         })
       );
-
-      // Update sentiment analysis for parent component
-      onMessageSent && onMessageSent(userMessageContent, sentimentResult);
     } catch (error) {
       console.error('Error getting AI response:', error);
       setMessages(prev => prev
         .filter(msg => msg.id !== 'typing')
         .concat({
           id: Date.now() + 1,
-          type: 'system',
-          content: !isBackendConnected 
-            ? "I'm currently having trouble connecting to my knowledge base. Please try again later, or consider reaching out to a mental health professional if you need immediate support."
-            : "I apologize, but I'm having difficulty processing your message right now. Your feelings are important - please try again or reach out for professional support if needed.",
+          type: 'bot',
+          content: "I'm sorry, I'm having trouble connecting right now. Please try again in a moment.",
           timestamp: new Date(),
           isError: true
         })
@@ -114,169 +97,126 @@ export default function ChatInterface({ onMessageSent }) {
     setUserInput(message);
   };
 
-  const getSentimentIcon = (sentiment) => {
-    switch (sentiment) {
-      case 'positive': return <Heart className="w-3 h-3 text-green-500" />;
-      case 'negative': return <AlertCircle className="w-3 h-3 text-red-500" />;
-      case 'supportive': return <Heart className="w-3 h-3 text-blue-500" />;
-      default: return <Activity className="w-3 h-3 text-gray-500" />;
-    }
-  };
-
   const LoadingIndicator = () => (
-    <div className="flex items-center space-x-2 p-4 bg-white dark:bg-gray-800 rounded-lg max-w-xs shadow-sm">
+    <div className="flex items-center space-x-2 p-4 bg-gray-800 rounded-2xl max-w-xs">
       <div className="flex space-x-1">
-        <div className="w-2 h-2 bg-indigo-600 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
-        <div className="w-2 h-2 bg-indigo-600 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
-        <div className="w-2 h-2 bg-indigo-600 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+        <div className="w-2 h-2 bg-blue-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+        <div className="w-2 h-2 bg-blue-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+        <div className="w-2 h-2 bg-blue-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
       </div>
-      <span className="text-sm text-gray-500 dark:text-gray-400">AI is thinking...</span>
+      <span className="text-sm text-gray-400">Thinking...</span>
     </div>
   );
 
   return (
-    <div className="flex flex-col h-full bg-gray-50 dark:bg-gray-900">
-      {/* Connection Status Bar */}
-      <div className="flex-shrink-0 px-4 py-2 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Heart className="w-4 h-4 text-indigo-600" />
-            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">AI Assistant</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <div className={`w-2 h-2 rounded-full ${isBackendConnected ? 'bg-green-500' : 'bg-red-500'}`} />
-            <span className="text-xs text-gray-500 dark:text-gray-400">
-              {isBackendConnected ? 'Online' : 'Offline'}
-            </span>
-          </div>
-        </div>
-      </div>      {/* Messages Area - Scrollable */}
-      <div className="flex-1 overflow-y-auto px-4 py-4 space-y-4 min-h-0 scrollbar-thin">
-        {messages.length === 0 && (
-          <div className="flex items-center justify-center h-full">
-            <div className="text-center space-y-4 max-w-md">
-              <div className="w-16 h-16 bg-indigo-100 dark:bg-indigo-900 rounded-full flex items-center justify-center mx-auto">
-                <Heart className="w-8 h-8 text-indigo-600 dark:text-indigo-400" />
+    <div className="flex flex-col h-full bg-gray-900">
+      {/* Header */}
+      <div className="flex-shrink-0 px-8 py-5 bg-gray-800/80 backdrop-blur border-b border-gray-700/50">
+        <div className="max-w-4xl mx-auto flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center shadow-lg">
+              <Bot className="w-7 h-7 text-white" />
+            </div>
+            <div>
+              <h2 className="text-white font-bold text-lg">MindWell</h2>
+              <div className="flex items-center gap-2">
+                <div className={`w-2 h-2 rounded-full ${isBackendConnected ? 'bg-green-400 animate-pulse' : 'bg-red-500'}`} />
+                <span className="text-xs text-gray-400">
+                  {isBackendConnected ? 'Ready to help' : 'Connecting...'}
+                </span>
               </div>
-              <p className="text-gray-500 dark:text-gray-400">
-                I'm here to provide personalized support using evidence-based responses. 
-                Share how you're feeling, and I'll help guide you through your emotions.
-              </p>
             </div>
           </div>
-        )}
-        
+          <p className="text-gray-500 text-sm hidden md:block">Your AI mental health companion</p>
+        </div>
+      </div>
+
+      {/* Messages Area */}
+      <div className="flex-1 overflow-y-auto px-4 md:px-8 py-8">
+        <div className="max-w-3xl mx-auto space-y-6">
         {messages.map((message) => (
-          message.id === 'typing' ? (
+          message.isTyping ? (
             <LoadingIndicator key="typing" />
           ) : (
             <div key={message.id} 
-                 className={`flex ${message.type === 'user' ? 'justify-end' : 'justify-start'} mb-4`}>
-              <div className={`max-w-xs lg:max-w-md px-4 py-3 rounded-2xl shadow-sm ${
+                 className={`flex ${message.type === 'user' ? 'justify-end' : 'justify-start'}`}>
+              <div className={`max-w-lg px-5 py-4 rounded-2xl shadow-md ${
                 message.type === 'user' 
-                  ? 'bg-indigo-600 text-white' 
+                  ? 'bg-gradient-to-r from-blue-600 to-blue-500 text-white' 
                   : message.isError
-                  ? 'bg-red-50 dark:bg-red-900/20 text-red-800 dark:text-red-200 border border-red-200 dark:border-red-800'
-                  : 'bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 border border-gray-200 dark:border-gray-700'
+                  ? 'bg-red-900/50 text-red-200 border border-red-700'
+                  : 'bg-gray-800/80 text-gray-100 border border-gray-700/50'
               }`}>
-                <div className="flex items-start gap-2">
-                  <div className="flex-1">
-                    <p className="text-sm leading-relaxed">{message.content}</p>
-                    {message.timestamp && (
-                      <p className="text-xs opacity-70 mt-2">
-                        {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                      </p>
-                    )}
-                    {/* Show source badge for bot messages */}
-                    {message.type === 'bot' && message.source && (
-                      <div className="mt-2 flex items-center gap-1">
-                        {message.source === 'vector_store' ? (
-                          <span className="text-xs px-2 py-0.5 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 rounded-full font-medium">
-                            📊 Vector Store
-                          </span>
-                        ) : message.source === 'fallback_general' ? (
-                          <span className="text-xs px-2 py-0.5 bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-300 rounded-full font-medium">
-                            🔄 Fallback
-                          </span>
-                        ) : message.source === 'fallback_error' ? (
-                          <span className="text-xs px-2 py-0.5 bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300 rounded-full font-medium">
-                            🔄 Fallback (Error)
-                          </span>
-                        ) : null}
-                      </div>
-                    )}
-                  </div>
-                  {message.sentiment && (
-                    <div className="flex-shrink-0 mt-1">
-                      {getSentimentIcon(message.sentiment)}
-                    </div>
-                  )}
-                </div>
-                {message.confidence > 0.3 && message.type === 'user' && (
-                  <div className="mt-2 text-xs opacity-70">
-                    Mood: {message.sentiment}
-                  </div>
+                <p className="text-sm leading-relaxed">{message.content}</p>
+                {message.timestamp && (
+                  <p className="text-xs opacity-50 mt-3">
+                    {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                  </p>
                 )}
               </div>
             </div>
           )
         ))}
         <div ref={messagesEndRef} />
+        </div>
       </div>
 
-      {/* Suggested Messages - Only show when conversation is new */}
-      {messages.length === 1 && (
-        <div className="flex-shrink-0 px-4 pb-4">
-          <p className="text-sm text-gray-500 dark:text-gray-400 mb-3">Suggested topics:</p>
-          <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
-            {suggestedMessages.map((msg, index) => (
-              <button
-                key={index}
-                onClick={() => handleSuggestedMessage(msg)}
-                className="flex items-center gap-2 px-3 py-2 bg-white dark:bg-gray-800 
-                  border border-gray-200 dark:border-gray-600 rounded-full text-sm 
-                  text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 
-                  hover:border-indigo-300 dark:hover:border-indigo-500 transition-colors 
-                  whitespace-nowrap flex-shrink-0"
-              >
-                <MessageSquare className="w-4 h-4" />
-                {msg}
-              </button>
-            ))}
+      {/* Suggested Messages */}
+      {messages.length <= 2 && (
+        <div className="flex-shrink-0 px-4 md:px-8 pb-4">
+          <div className="max-w-3xl mx-auto">
+            <p className="text-sm text-gray-500 mb-3">Quick topics:</p>
+            <div className="flex flex-wrap gap-2">
+              {suggestedMessages.map((msg, index) => (
+                <button
+                  key={index}
+                  onClick={() => handleSuggestedMessage(msg)}
+                  className="flex items-center gap-2 px-4 py-2.5 bg-gray-800/60 
+                    border border-gray-700/50 rounded-xl text-sm 
+                    text-gray-300 hover:bg-gray-700 hover:border-blue-500/50
+                    transition-all duration-200 hover:scale-[1.02]"
+                >
+                  <MessageSquare className="w-4 h-4 text-blue-400" />
+                  {msg}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
       )}
 
-      {/* Input Box - Fixed at bottom */}
-      <div className="flex-shrink-0 p-4 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700">
-        <div className="flex items-center gap-3 bg-gray-50 dark:bg-gray-700 rounded-xl p-3 shadow-sm">
-          <input
-            type="text"
-            className="flex-1 bg-transparent text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 outline-none text-sm resize-none"
-            placeholder={isBackendConnected ? "Type your message..." : "Reconnecting to AI assistant..."}
-            value={userInput}
-            onChange={(e) => setUserInput(e.target.value)}
-            onKeyPress={(e) => e.key === 'Enter' && !isTyping && handleSendMessage()}
-            disabled={!isBackendConnected || isTyping}
-          />
-          <button
-            className={`p-2 rounded-lg transition-all duration-200 ${
-              userInput.trim() && isBackendConnected && !isTyping
-                ? 'bg-indigo-600 hover:bg-indigo-700 text-white shadow-md hover:shadow-lg'
-                : 'bg-gray-300 dark:bg-gray-600 text-gray-500 dark:text-gray-400 cursor-not-allowed'
-            }`}
-            onClick={handleSendMessage}
-            disabled={!userInput.trim() || !isBackendConnected || isTyping}
-          >
-            <Send className="w-4 h-4" />
-          </button>
+      {/* Input Box */}
+      <div className="flex-shrink-0 p-4 md:p-6 bg-gray-800/50 backdrop-blur border-t border-gray-700/50">
+        <div className="max-w-3xl mx-auto">
+          <div className="flex items-center gap-3 bg-gray-800 rounded-2xl p-2 border border-gray-700/50 shadow-lg">
+            <input
+              type="text"
+              className="flex-1 bg-transparent text-white placeholder-gray-500 outline-none text-sm px-4 py-2"
+              placeholder={isBackendConnected ? "Share what's on your mind..." : "Connecting..."}
+              value={userInput}
+              onChange={(e) => setUserInput(e.target.value)}
+              onKeyPress={(e) => e.key === 'Enter' && !isTyping && handleSendMessage()}
+              disabled={!isBackendConnected || isTyping}
+            />
+            <button
+              className={`p-3 rounded-xl transition-all duration-200 ${
+                userInput.trim() && isBackendConnected && !isTyping
+                  ? 'bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 text-white shadow-lg hover:shadow-blue-500/25'
+                  : 'bg-gray-700 text-gray-500 cursor-not-allowed'
+              }`}
+              onClick={handleSendMessage}
+              disabled={!userInput.trim() || !isBackendConnected || isTyping}
+            >
+              <Send className="w-5 h-5" />
+            </button>
+          </div>
+          {!isBackendConnected && (
+            <p className="text-xs text-red-400 mt-3 flex items-center justify-center gap-1">
+              <AlertCircle className="w-3 h-3" />
+              Connecting to AI backend...
+            </p>
+          )}
         </div>
-        {!isBackendConnected && (
-          <p className="text-xs text-red-500 dark:text-red-400 mt-2 flex items-center gap-1">
-            <AlertCircle className="w-3 h-3" />
-            Unable to connect to AI backend. Please check your connection.
-          </p>
-        )}
       </div>
     </div>
   );

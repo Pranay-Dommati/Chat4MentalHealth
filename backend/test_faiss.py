@@ -5,17 +5,22 @@ import os
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 try:
-    from load_vector_store import search
-    print("Successfully imported search function from load_vector_store")
+    from load_vector_store import search, ask_rag
+    print("Successfully imported functions from load_vector_store")
     
-    query = "I feel anxious"
-    print(f"Testing query: '{query}'")
+    test_queries = [
+        "I've been feeling anxious lately",
+        "I feel depressed and lonely",
+        "How can I deal with stress?"
+    ]
     
-    results = search(query)
-    print(f"Found {len(results)} results")
-    
-    for i, res in enumerate(results):
-        print(f"Result {i+1}: {res}")
+    for query in test_queries:
+        print(f"\n{'='*60}")
+        print(f"Query: '{query}'")
+        print(f"{'='*60}")
+        
+        results = search(query)
+        print(f"\nResponse:\n{results[0]}")
         
 except Exception as e:
     print(f"Error: {e}")
